@@ -1,7 +1,7 @@
 import numpy as np 
 import random
 from numpy import cos, sin
-from skimage.transform import radon
+from skimage.transform import radon, iradon
 import scipy.linalg as la
 
 """ Contains the code to generate dataset of (random ellipsod, sinogram) pairs for training the CNN
@@ -22,11 +22,15 @@ class ellipses:
 	``rangeNumEllipses`` : range of number of ellipses in each image
 	``value``            : numpy ndarry containing all the images
 	``sinograms``        : Pure high resolution sinograms of all the images
+	``measurement``		 : Low view CT sinograms (potentially) with noise
+	``SNR``				 : Measurement SNR used
+	``recon``			 : Reconstruction from the noisy measurements
 
 	Methods:
 	``ellipses.create()``
 	``ellipses.create_sinograms()``
 	``ellipses.request_measurement()``
+	``ellipses.fbp_reconstruction()``
 	``ellipses.save_images()``
 
 	"""
@@ -37,6 +41,9 @@ class ellipses:
 		self.numEllipses = None
 		self.value = np.zeros(self.shape)
 		self.sinograms = None
+		self.measurement = None
+		self.SNR = None
+		self.recon = None
 
 	# Methods
 	def create(self, N_ell=[10,20], rng_a=[0.1, 0.6], rng_b=[0.1, 0.6]):
@@ -126,7 +133,41 @@ class ellipses:
 		
 		S_measured = [sinograms[i,:,:] + noise_levels[i]*np.random.random_sample(image_shape) for i in range(N)]
 
-		return np.array(S_measured)
+		self.measurement = np.array(S_measured)
+		self.SNR = SNR
+
+		return self.measurement
+
+
+	def fbp_reconstruction(self, theta=np.array([None])):
+
+		""" Reconstruction from the low view CT sinograms.
+		Inputs : 
+		``S_measured`` : Measured low view ct
+		"""
+
+		# (expect artefacts even when reconstructing from pure sinusoids if image size is small)
+		
+		S_measured = self.measurement
+		N = S_measured.shape[0]
+		image_shape = self.shape[1::]
+
+		assert self.shape[0] == N , 'Number of images not equal to number of sinograms'
+
+		if (theta==None).all():
+			num_thetas = S_measured.shape[2]
+			theta = np.linspace(0.,179., num_thetas)
+		
+		recon = [iradon(S_measured[i], theta=theta, circle=False) for i in range(N)]
+
+		self.recon = np.array(recon)
+
+		return self.recon
+
+
+
+
+
 
 
 
