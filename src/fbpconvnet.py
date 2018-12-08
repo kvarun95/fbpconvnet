@@ -18,7 +18,7 @@ class fbpconvnet(tf.keras.Model):
 
 		# initialize weights
 		initializer = tf.variance_scaling_initializer(scale=2.0)
-		
+
 
 		# Common layers
 		self.pool = tf.keras.layers.MaxPool2D(pool_size=(2,2))
@@ -48,7 +48,7 @@ class fbpconvnet(tf.keras.Model):
 		self.skipc = tf.keras.layers.Add()
 
 
-	def call(self, x, training=None):
+	def call(self, x, training=False):
 
 
 		# Phase I - Analysis step-downward process
