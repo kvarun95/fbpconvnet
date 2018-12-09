@@ -46,14 +46,15 @@ class ellipses:
 		self.recon = None
 
 	# Methods
-	def create(self, N_ell=[10,20], rng_a=[0.1, 0.6], rng_b=[0.1, 0.6]):
+	def create(self, N_ell=[10,20], rng_a=[0.1, 0.6], rng_b=[0.1, 0.6], normalize='False'):
 
 		""" Creates the ellipses dataset. 
 		
 		Inputs:
-		``N_ell`` : Range of number of ellipses in each image
-		``rng_a`` : range of major axis values between [0,1] relative to image size
-		``rng_b`` : range of minor axis values between [0,1] relative to image size
+		`N_ell` : Range of number of ellipses in each image
+		`rng_a` : range of major axis values between [0,1] relative to image size
+		`rng_b` : range of minor axis values between [0,1] relative to image size
+		`normalize` : Boolian. Determines whether to normalize the images to range [0,1].
 
 		Outputs:
 		numpy ndarry containing ellipse images
@@ -84,6 +85,10 @@ class ellipses:
 			for j in range(num_ellipses):
 				eqn = ( (x-xc[j])*cos(thetas[j]) + (y-yc[j])*sin(thetas[j]) )**2 / a[j]**2 + ( (x-xc[j])*sin(thetas[j]) - (y-yc[j])*cos(thetas[j]) )**2 / b[j]**2 <= 1 
 				images[i,:,:] += np.random.rand() * eqn 
+
+			if normalize:
+				images[i,:,:] = (images[i,:,:] - np.amin(images[i,:,:]))
+				images[i,:,:] = images[i,:,:] / np.amax(images[i,:,:])
 
 		# self.value = images
 		return images
