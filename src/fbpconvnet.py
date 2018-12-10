@@ -18,7 +18,7 @@ class fbpconvnet(tf.keras.Model):
 
 		# initialize weights
 		initializer = tf.variance_scaling_initializer(scale=2.0)
-
+		# initializer = tf.glorot_uniform_initializer()
 
 		# Common layers
 		self.pool1 = tf.keras.layers.MaxPool2D(pool_size=(2,2))
@@ -33,28 +33,28 @@ class fbpconvnet(tf.keras.Model):
 
 		# Phase I - Analysis steps-downward process
 		# slab 1
-		self.conv1a = tf.keras.layers.Conv2D(4, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
-		self.conv1b = tf.keras.layers.Conv2D(4, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
+		self.conv1a = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
+		self.conv1b = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
 
 		# slab 2
-		self.conv2a = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
-		self.conv2b = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
+		self.conv2a = tf.keras.layers.Conv2D(16, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
+		self.conv2b = tf.keras.layers.Conv2D(16, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
 
 		# slab 3
-		self.conv3a = tf.keras.layers.Conv2D(16, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
-		self.conv3b = tf.keras.layers.Conv2D(16, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
+		self.conv3a = tf.keras.layers.Conv2D(32, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
+		self.conv3b = tf.keras.layers.Conv2D(32, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
 
 		# Phase II - Synthesis steps-upward process
 		# slab 2
-		self.convu3 = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
-		self.conv2c = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
-		self.conv2d = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
+		self.convu3 = tf.keras.layers.Conv2D(16, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
+		self.conv2c = tf.keras.layers.Conv2D(16, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
+		self.conv2d = tf.keras.layers.Conv2D(16, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
 		
 		# slab 1
-		self.convu2 = tf.keras.layers.Conv2D(4, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
-		self.conv1c = tf.keras.layers.Conv2D(4, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
-		self.conv1d = tf.keras.layers.Conv2D(4, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
-		self.conv_final = tf.keras.layers.Conv2D(1, (1,1), activation=tf.nn.relu, kernel_initializer=initializer, bias_initializer=initializer, padding='same')
+		self.convu2 = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
+		self.conv1c = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
+		self.conv1d = tf.keras.layers.Conv2D(8, (3,3), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
+		self.conv_final = tf.keras.layers.Conv2D(1, (1,1), activation=tf.nn.relu, kernel_initializer=initializer, padding='same')
 
 		# skip connection
 		self.skipc = tf.keras.layers.Add()
@@ -115,21 +115,21 @@ class fbpconvnet(tf.keras.Model):
 
 			# slab 2
 			x2 = self.convu3(self.upsamp2(x3))
-			# x2 = self.conv2c(self.conc2([x2, c2]))
-			x2 = self.conv2c(x2)
+			x2 = self.conv2c(self.conc2([x2, 0.0001*c2]))
+			# x2 = self.conv2c(x2)
 			x2 = self.conv2d(x2)
 
 			# slab 1
 			x1 = self.convu2(self.upsamp1(x2))
-			# x1 = self.conv1c(self.conc1([x1, c1]))
-			x1 = self.conv1c(x1) 
+			x1 = self.conv1c(self.conc1([x1, 0.0001*c1]))
+			# x1 = self.conv1c(x1) 
 			x1 = self.conv1d(x1)
 
 			x1 = self.conv_final(x1)
 
 			# skip connection
-			# x_est = self.skipc([x1, x])
-			x_est = x1
+			x_est = self.skipc([x1, 0.00000*x])
+			# x_est = x1
 
 		return x_est
 
