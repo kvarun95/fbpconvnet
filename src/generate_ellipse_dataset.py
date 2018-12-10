@@ -46,7 +46,7 @@ class ellipses:
 		self.recon = None
 
 	# Methods
-	def create(self, N_ell=[10,20], rng_a=[0.1, 0.6], rng_b=[0.1, 0.6], normalize='False'):
+	def create(self, N_ell=[4,8], rng_a=[0.1, 0.6], rng_b=[0.1, 0.6], normalize='False'):
 
 		""" Creates the ellipses dataset. 
 		
