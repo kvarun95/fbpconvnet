@@ -13,12 +13,13 @@ def ist_reconstruction(Y, x_init, lamda=0.01, step=0.01, n_iter=100, verbose=1, 
 	""" Iterative Shrinkage and Thresholding Based reconstruction from sparse views CT.
 
 	Inputs:
-	`X` : An instance of class `ellipses`.
-			`X.value` contains initial value of estimate. Use all the methods of `X` for getting he radon transform, FBP and backprojection. 
-
+	`Y` 	: Measured sparse views data
 	`lamda` : Regularization parameter
 	`n_iter`: Number of iterations
-	`X_init`: Initialization
+	`x_init`: Initialization
+	`step`  : step size for gradient update
+	`verbose`:
+	`lamda_rate`: Reduce the value of `lamda` by this amount per iteration.
 	"""
 
 	# assert X.measurement != None, 'Please specify the low view measurement'
