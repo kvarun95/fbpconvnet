@@ -144,11 +144,12 @@ class ellipses:
 		return self.measurement
 
 
-	def fbp_reconstruction(self, theta=np.array([None])):
+	def fbp_reconstruction(self, theta=np.array([None]), backproject=False):
 
 		""" Reconstruction from the low view CT sinograms.
 		Inputs : 
-		``S_measured`` : Measured low view ct
+		`theta` : 
+		`backproject` : Do a backprojection instead of fbp
 		"""
 
 		# (expect artefacts even when reconstructing from pure sinusoids if image size is small)
@@ -162,8 +163,13 @@ class ellipses:
 		if (theta==None).all():
 			num_thetas = S_measured.shape[2]
 			theta = np.linspace(0.,179., num_thetas)
+
+		if backproject==False:
+			filt = 'ramp'
+		else:
+			filt = None
 		
-		recon = [iradon(S_measured[i], theta=theta, circle=False) for i in range(N)]
+		recon = [iradon(S_measured[i], theta=theta, circle=False, filter=filt) for i in range(N)]
 
 		self.recon = np.array(recon)
 
